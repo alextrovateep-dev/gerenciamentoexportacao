@@ -250,10 +250,43 @@
     .important-note b {
       color: #b52121;
     }
+    .tabs { margin: 24px auto 0; }
+    .tab-buttons {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      margin: 0 auto 14px;
+      max-width: 900px;
+      padding: 0 4px 8px;
+    }
+    .tab-btn {
+      background: #eef6fd;
+      color: #0b62a3;
+      border: 1px solid #cfe6fb;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .tab-btn.active {
+      background: #fff;
+      color: #0b62a3;
+      border-color: #cfe6fb;
+      box-shadow: 0 -1px 4px #0001;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="tabs">
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-target="tab-gerenciador">Gerenciador</button>
+      <button class="tab-btn" data-target="tab-ddp356">DDP 356</button>
+    </div>
+    <div id="tab-gerenciador" class="tab-content active">
+      <div class="container">
     <h2>Gerenciar Exportações de Dados</h2>
     <div class="help-box">
       <div class="help-title">Como usar</div>
@@ -324,8 +357,116 @@
     </form>
     <div class="result" id="resultado" style="display:none;"></div>
     <div id="resultadosCadeia"></div>
+      </div>
+    </div>
+    <div id="tab-ddp356" class="tab-content">
+      <div class="container">
+        <h2>DDP 356</h2>
+        <div class="help-box" style="background:#f8fafd;border-left-color:#0077cc;">
+          <div class="help-title">Documento de Definição de Produto (DDP 356)</div>
+          <div style="color:#444;line-height:1.6;">
+            <p><strong>Sistema:</strong> teepOEE</p>
+            <p><strong>Assunto:</strong> Gerenciamento de Exportações de Dados por Máquina</p>
+            <p><strong>Empresa:</strong> Teep Tecnologia</p>
+          </div>
+        </div>
+        <div class="help-box">
+          <div class="help-title">Participantes</div>
+          <p><strong>TEEP:</strong> Alexandro Trova, Matheus</p>
+          <p><strong>FACCHINI:</strong> Kelvin</p>
+        </div>
+        <div class="help-box">
+          <div class="help-title">Objetivo</div>
+          <p>Permitir que a Facchini configure exportações de dados individualmente por máquina, definindo o tipo de exportação e, quando aplicável, operações específicas, garantindo flexibilidade e controle sobre o processo.</p>
+        </div>
+        <div class="help-box">
+          <div class="help-title">Funcionalidades propostas</div>
+          <ol class="help-list">
+            <li><strong>Seleção de máquinas</strong>
+              <ul>
+                <li>O usuário pode selecionar uma ou mais máquinas para configuração da exportação.</li>
+                <li>Cada máquina só pode estar associada a um único tipo de exportação por vez (linha a linha ou operações).</li>
+                <li>Máquinas já configuradas para um tipo de exportação são indicadas como indisponíveis para o outro tipo, evitando conflitos.</li>
+              </ul>
+            </li>
+            <li><strong>Tipos de exportação</strong>
+              <ul>
+                <li><strong>Linha a linha</strong>: exportar todos os registros individuais da máquina.</li>
+                <li><strong>Operações</strong>: exporta dados de eventos específicos da máquina, como:
+                  <ul>
+                    <li>Troca de turno</li>
+                    <li>Troca de operador</li>
+                    <li>Virada de dia</li>
+                    <li>Fechamento de OP</li>
+                  </ul>
+                </li>
+                <li>Para exportações por operações, é possível selecionar uma ou mais operações.</li>
+              </ul>
+            </li>
+            <li><strong>Agrupamento e gerenciamento</strong>
+              <ul>
+                <li>Máquinas com o mesmo tipo de exportação e operações selecionadas são agrupadas para visualização e gerenciamento mais fácil.</li>
+                <li>O usuário pode:
+                  <ul>
+                    <li>Remover uma máquina individual do grupo.</li>
+                    <li>Remover o grupo completo.</li>
+                    <li>Adicionar máquinas disponíveis a grupos existentes.</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><strong>Validações</strong>
+              <ul>
+                <li>Pelo menos uma máquina deve ser selecionada para criar a exportação.</li>
+                <li>Um tipo de exportação deve ser escolhido.</li>
+                <li>Para exportações do tipo “Operações”, pelo menos uma operação deve ser selecionada.</li>
+                <li>A lógica impede que uma máquina tenha configurações conflitantes, mantendo consistência nos dados exportados.</li>
+              </ul>
+            </li>
+            <li><strong>Interface de visualização</strong>
+              <ul>
+                <li>A configuração é apresentada em cascata, mostrando:</li>
+                <li>Tipo de exportação</li>
+                <li>Operações selecionadas (quando aplicável)</li>
+                <li>Máquinas associadas</li>
+                <li>Cada máquina e operação aparece como “chip” visual, com botões para remoção individual.</li>
+                <li>Máquinas disponíveis podem ser adicionadas aos grupos existentes diretamente na visualização.</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+        <div class="help-box">
+          <div class="help-title">Benefícios esperados</div>
+          <ul class="help-list">
+            <li>Flexibilidade total na definição de exportações por máquina.</li>
+            <li>Evita conflitos de exportação e duplicidade de dados.</li>
+            <li>Facilidade de gerenciamento visual e manutenção das configurações.</li>
+            <li>Configuração clara e auditável, permitindo rastreabilidade das exportações.</li>
+          </ul>
+        </div>
+        <div class="help-box">
+          <div class="help-title">Link descritivo da tela de uso</div>
+          <p>Abaixo um link para acesso ao HTML que exemplifica a aplicação e seu uso.</p>
+          <p><a href="https://alextrovateep-dev.github.io/gerenciamentoexportacao/" target="_blank" rel="noopener noreferrer">Abrir exemplo de uso</a></p>
+        </div>
+      </div>
+    </div>
   </div>
   <script>
+    // Abas: alternância simples
+    document.addEventListener('DOMContentLoaded', function() {
+      const buttons = document.querySelectorAll('.tab-btn');
+      const tabs = document.querySelectorAll('.tab-content');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('active'));
+          tabs.forEach(t => t.classList.remove('active'));
+          btn.classList.add('active');
+          const target = document.getElementById(btn.getAttribute('data-target'));
+          if (target) target.classList.add('active');
+        });
+      });
+    });
     // Simulação de restrição: cada máquina só pode ter um tipo de exportação
     const maquinasExportadas = {};
     // Armazena os resultados em cadeia
