@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerenciador de Exportações</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+    .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h2 { margin-top: 0; }
+    label { display: block; margin: 16px 0 8px; }
+    select, input[type="checkbox"] { margin-right: 8px; }
+    .maquinas-list {
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 32px;
+    }
+    .maquinas-col {
+      flex: 1 1 45%;
+      min-width: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px 0;
+    }
+    .operacoes { margin: 12px 0 0 24px; }
+    .alert { color: #b00; margin-top: 12px; }
+    button { margin-top: 24px; padding: 8px 24px; background: #0077cc; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    button:disabled { background: #aaa; }
+    .result-cascade {
+      background: #f8fafd;
+      margin-top: 24px;
+      padding: 20px 20px 20px 32px;
+      border-radius: 8px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      box-shadow: 0 2px 8px #0001;
+      border-left: 6px solid #0077cc;
+      position: relative;
+      margin-bottom: 18px;
+    }
+    .cascade-title {
+      font-size: 1.08em;
+      font-weight: bold;
+      color: #0077cc;
+      margin-bottom: 8px;
+    }
+    .cascade-type {
+      margin-left: 18px;
+      font-size: 1em;
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 4px;
+    }
+    .cascade-ops {
+      margin-left: 36px;
+      font-size: 0.98em;
+      color: #444;
+      margin-bottom: 4px;
+    }
+    .cascade-machines-title {
+      margin-left: 36px;
+      font-size: 0.98em;
+      color: #222;
+      margin-bottom: 2px;
+      font-weight: bold;
+    }
+    .cascade-machines-list {
+      margin-left: 54px;
+      margin-bottom: 0;
+      color: #222;
+      font-size: 0.97em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+    }
+    .cascade-machine-chip {
+  background: #0077cc;
+  color: #fff;
+  border-radius: 12px;
+  padding: 2px 14px 2px 10px;
+  font-size: 0.97em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-bottom: 2px;
+  box-shadow: 0 1px 3px #0077cc22;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+  position: relative;
+  transition: background 0.2s;
+  height: 26px; /* altura fixa para alinhar o botão */
+}
+
+.chip-remove-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.2s;
+  position: relative;
+  top: 0;
+  bottom: 0;
+}
+    .chip-remove-btn:hover {
+      background: #c0392b;
+    }
+    .chip-add-btn {
+      background: #27ae60;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      margin-left: 6px;
+      cursor: pointer;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: background 0.2s;
+    }
+    .chip-add-btn:hover {
+      background: #219150;
+    }
+    .add-maquina-list {
+      margin-left: 54px;
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+    }
+    .add-maquina-chip {
+      background: #f5f5f5;
+      color: #0077cc;
+      border: 1px solid #0077cc;
+      border-radius: 12px;
+      padding: 2px 10px 2px 10px;
+      font-size: 0.96em;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .add-maquina-chip:hover {
+      background: #0077cc;
+      color: #fff;
+    }
+    .cascade-op-chip {
+      background: #f7b731;
+      color: #fff;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: 0.97em;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      margin-right: 6px;
+      margin-bottom: 2px;
+      box-shadow: 0 1px 3px #f7b73133;
+      display: inline-block;
+      transition: background 0.2s, color 0.2s;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Gerenciar Exportações de Dados</h2>
+    <form id="exportForm">
+      <label>Escolha as máquinas:</label>
+      <div class="maquinas-list">
+        <div class="maquinas-col">
+          <label><input type="checkbox" name="maquinas" value="Maquina 1">Maquina 1</label>
+          <label><input type="checkbox" name="maquinas" value="Maquina 2">Maquina 2</label>
+          <label><input type="checkbox" name="maquinas" value="Maquina 3">Maquina 3</label>
+          <label><input type="checkbox" name="maquinas" value="Maquina 4">Maquina 4</label>
+        </div>
+        <div class="maquinas-col">
+          <label><input type="checkbox" name="maquinas" value="Maquina 5">Maquina 5</label>
+          <label><input type="checkbox" name="maquinas" value="Maquina 6">Maquina 6</label>
+          <label><input type="checkbox" name="maquinas" value="Maquina 7">Maquina 7</label>
+        </div>
+      </div>
+
+      <label>Tipo de exportação:</label>
+      <select id="tipoExportacao" name="tipoExportacao">
+        <option value="">Selecione...</option>
+        <option value="linha">Linha a linha</option>
+        <option value="operacoes">Operações</option>
+      </select>
+
+      <div id="operacoesBox" style="display:none;">
+        <label>Escolha as operações:</label>
+        <div class="operacoes">
+          <label><input type="checkbox" name="operacoes" value="Troca de turno">Troca de turno</label>
+          <label><input type="checkbox" name="operacoes" value="Troca de operador">Troca de operador</label>
+          <label><input type="checkbox" name="operacoes" value="Virada de dia">Virada de dia</label>
+          <label><input type="checkbox" name="operacoes" value="Fechamento de OP">Fechamento de OP</label>
+        </div>
+      </div>
+      <div class="alert" id="alerta"></div>
+      <button type="submit">SALVAR</button>
+    </form>
+    <div class="result" id="resultado" style="display:none;"></div>
+    <div id="resultadosCadeia"></div>
+  </div>
+  <script>
+    // Simulação de restrição: cada máquina só pode ter um tipo de exportação
+    const maquinasExportadas = {};
+    // Armazena os resultados em cadeia
+    let resultadosCadeia = [];
+
+    document.getElementById('tipoExportacao').addEventListener('change', function() {
+      document.getElementById('operacoesBox').style.display = this.value === 'operacoes' ? 'block' : 'none';
+    });
+
+    function formatarResultado(exportacao) {
+      let html = `<div class="cascade-title">Tipo de exportação:</div>`;
+      if (exportacao.type_exporter[0] === 'Linha a linha') {
+        html += `<div class="cascade-type">Linha a linha:</div>`;
+        html += `<div class="cascade-machines-title">Máquinas:</div>`;
+        html += `<div class="cascade-machines-list">`;
+        html += exportacao.resources.map(m => `<span class="cascade-machine-chip">${m}</span>`).join('');
+        html += `</div>`;
+      } else if (exportacao.type_exporter[0] === 'Operações') {
+        html += `<div class="cascade-type">Operações:</div>`;
+        html += `<div class="cascade-ops">`;
+        html += exportacao.operacoes.map(op => `<span class="cascade-op-chip">${op}</span>`).join('');
+        html += `</div>`;
+        html += `<div class="cascade-machines-title">Máquinas:</div>`;
+        html += `<div class="cascade-machines-list">`;
+        html += exportacao.resources.map(m => `<span class="cascade-machine-chip">${m}</span>`).join('');
+        html += `</div>`;
+      }
+      return html;
+    }
+
+    // Atualize a função renderizarResultados para permitir deletar uma máquina individualmente
+    function renderizarResultados() {
+      const container = document.getElementById('resultadosCadeia');
+      container.innerHTML = '';
+      // Limpa todos os checkboxes das máquinas
+      document.querySelectorAll('input[name="maquinas"]').forEach(cb => {
+        cb.disabled = false;
+      });
+
+      // Marque as máquinas já utilizadas como desabilitadas
+      resultadosCadeia.forEach(res => {
+        res.resources.forEach(maq => {
+          const cb = document.querySelector(`input[name="maquinas"][value="${maq}"]`);
+          if (cb) cb.disabled = true;
+        });
+      });
+
+      resultadosCadeia.forEach((res, idx) => {
+        const div = document.createElement('div');
+        div.className = 'result-cascade';
+        div.innerHTML = formatarResultado(res);
+
+        // Botão para deletar o grupo inteiro
+        const btn = document.createElement('button');
+        btn.textContent = 'Deletar grupo';
+        btn.className = 'delete-btn';
+        btn.style.top = '16px';
+        btn.style.right = '16px';
+        btn.onclick = function() {
+          // Libera as máquinas desse resultado
+          res.resources.forEach(maq => {
+            delete maquinasExportadas[maq];
+          });
+          resultadosCadeia.splice(idx, 1);
+          renderizarResultados();
+        };
+        div.appendChild(btn);
+
+        // Botões para deletar cada máquina individualmente
+        const chips = div.querySelectorAll('.cascade-machine-chip');
+        res.resources.forEach((maq, i) => {
+          const delMaqBtn = document.createElement('button');
+          delMaqBtn.innerHTML = '&times;';
+          delMaqBtn.title = `Remover ${maq}`;
+          delMaqBtn.className = 'chip-remove-btn';
+          delMaqBtn.onclick = function(ev) {
+            ev.stopPropagation();
+            // Remove a máquina do grupo
+            res.resources = res.resources.filter(m => m !== maq);
+            delete maquinasExportadas[maq];
+            // Se o grupo ficar vazio, remove o grupo
+            if (res.resources.length === 0) {
+              resultadosCadeia.splice(idx, 1);
+            }
+            renderizarResultados();
+          };
+          if (chips[i]) chips[i].appendChild(delMaqBtn);
+        });
+
+        // Adicionar máquinas ao grupo (apenas se houver disponíveis)
+        // Só permite adicionar se grupo for do tipo correto
+        const maquinasDisponiveis = Array.from(document.querySelectorAll('input[name="maquinas"]:not(:disabled)')).map(cb => cb.value);
+        if (maquinasDisponiveis.length > 0) {
+          let addList = document.createElement('div');
+          addList.className = 'add-maquina-list';
+          addList.innerHTML = '<span style="margin-right:8px;color:#888;">Adicionar máquina:</span>';
+          maquinasDisponiveis.forEach(maq => {
+            let chip = document.createElement('span');
+            chip.className = 'add-maquina-chip';
+            chip.textContent = maq;
+            chip.onclick = function() {
+              // Adiciona a máquina ao grupo
+              res.resources.push(maq);
+              maquinasExportadas[maq] = res.type_exporter[0] === 'Linha a linha' ? 'linha' : 'operacoes';
+              renderizarResultados();
+            };
+            addList.appendChild(chip);
+          });
+          // Adiciona só se for grupo de operações ou linha a linha
+          div.appendChild(addList);
+        }
+
+        container.appendChild(div);
+      });
+    }
+
+    document.getElementById('exportForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const alerta = document.getElementById('alerta');
+      alerta.textContent = '';
+      const resultado = document.getElementById('resultado');
+      resultado.style.display = 'none';
+
+      const maquinas = Array.from(document.querySelectorAll('input[name="maquinas"]:checked')).map(cb => cb.value);
+      const tipo = document.getElementById('tipoExportacao').value;
+      const operacoes = Array.from(document.querySelectorAll('input[name="operacoes"]:checked')).map(cb => cb.value);
+
+      if (maquinas.length === 0) {
+        alerta.textContent = 'Selecione pelo menos uma máquina.';
+        return;
+      }
+      if (!tipo) {
+        alerta.textContent = 'Selecione o tipo de exportação.';
+        return;
+      }
+      if (tipo === 'operacoes' && operacoes.length === 0) {
+        alerta.textContent = 'Selecione pelo menos uma operação.';
+        return;
+      }
+
+      // Para cada máquina selecionada, verifica se já existe um resultado para ela
+      maquinas.forEach(maq => {
+        let idxExistente = resultadosCadeia.findIndex(res =>
+          res.resources.includes(maq)
+        );
+
+        if (idxExistente !== -1) {
+          let resExistente = resultadosCadeia[idxExistente];
+          // Se o tipo for diferente, bloqueia
+          if ((resExistente.type_exporter[0] === 'Linha a linha' && tipo !== 'linha') ||
+              (resExistente.type_exporter[0] === 'Operações' && tipo !== 'operacoes')) {
+            alerta.textContent = `A máquina "${maq}" já foi exportada como "${resExistente.type_exporter[0]}".`;
+            return;
+          }
+          // Se for operações, verifica se as operações são diferentes
+          if (tipo === 'operacoes') {
+            const opsExistentes = resExistente.operacoes ? resExistente.operacoes.slice().sort() : [];
+            const opsSelecionadas = operacoes.slice().sort();
+            // Se as operações são diferentes, isola a máquina em um novo grupo
+            if (JSON.stringify(opsExistentes) !== JSON.stringify(opsSelecionadas)) {
+              // Remove a máquina do grupo antigo
+              resExistente.resources = resExistente.resources.filter(m => m !== maq);
+              // Se o grupo antigo ficar vazio, remove ele
+              if (resExistente.resources.length === 0) {
+                resultadosCadeia.splice(idxExistente, 1);
+              }
+              // Junta as operações antigas e novas (sem duplicar)
+              const novasOperacoes = Array.from(new Set([...opsExistentes, ...operacoes]));
+              // Cria novo grupo para a máquina com todas as operações
+              resultadosCadeia.push({
+                resources: [maq],
+                type_exporter: ['Operações'],
+                operacoes: novasOperacoes
+              });
+              maquinasExportadas[maq] = tipo;
+            }
+            // Se as operações são iguais, não faz nada (já está no grupo certo)
+          }
+        } else {
+          // Novo resultado
+          if (tipo === 'linha') {
+            resultadosCadeia.push({
+              resources: [maq],
+              type_exporter: ['Linha a linha']
+            });
+            maquinasExportadas[maq] = tipo;
+          } else if (tipo === 'operacoes') {
+            resultadosCadeia.push({
+              resources: [maq],
+              type_exporter: ['Operações'],
+              operacoes: [...operacoes]
+            });
+            maquinasExportadas[maq] = tipo;
+          }
+        }
+      });
+
+      // Agrupa máquinas por tipo e operações para evitar múltiplos blocos iguais
+      function agruparResultados() {
+        let agrupados = [];
+        resultadosCadeia.forEach(res => {
+          let key = res.type_exporter[0];
+          if (key === 'Operações') key += ':' + res.operacoes.slice().sort().join(',');
+          let existente = agrupados.find(r =>
+            r.type_exporter[0] === res.type_exporter[0] &&
+            (r.type_exporter[0] !== 'Operações' || (
+              r.operacoes.length === res.operacoes.length &&
+              r.operacoes.slice().sort().join(',') === res.operacoes.slice().sort().join(',')
+            ))
+          );
+          if (existente) {
+            existente.resources = Array.from(new Set([...existente.resources, ...res.resources]));
+          } else {
+            agrupados.push({
+              resources: [...res.resources],
+              type_exporter: [...res.type_exporter],
+              ...(res.operacoes ? { operacoes: [...res.operacoes] } : {})
+            });
+          }
+        });
+        // Remove grupos vazios
+        return agrupados.filter(r => r.resources.length > 0);
+      }
+
+      resultadosCadeia = agruparResultados();
+
+      renderizarResultados();
+
+      // Limpa seleção do formulário
+      document.getElementById('exportForm').reset();
+      document.getElementById('operacoesBox').style.display = 'none';
+    });
+
+    // Renderiza ao carregar (caso queira iniciar com algum dado)
+    renderizarResultados();
+  </script>
+</body>
+</html>
