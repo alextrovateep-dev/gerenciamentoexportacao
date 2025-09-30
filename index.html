@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -171,11 +170,111 @@
       display: inline-block;
       transition: background 0.2s, color 0.2s;
     }
+    .help-box {
+      background: #fff9e6;
+      border-left: 6px solid #f7b731;
+      border-radius: 8px;
+      padding: 16px 20px 16px 20px;
+      margin: 12px 0 20px 0;
+      box-shadow: 0 1px 4px #00000011;
+      color: #333;
+    }
+    .help-title {
+      font-weight: bold;
+      color: #7a5a00;
+      margin: 0 0 8px 0;
+      font-size: 1.02em;
+    }
+    .help-list {
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.5;
+      color: #444;
+    }
+    .field-help {
+      font-size: 0.92em;
+      color: #666;
+      margin-top: 6px;
+    }
+    .label-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .info-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #0077cc;
+      color: #fff;
+      font-weight: bold;
+      font-size: 12px;
+      cursor: default;
+      position: relative;
+    }
+    .info-badge .tooltip {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      top: 24px;
+      left: 0;
+      transform: translateX(-10%);
+      background: #1f2937;
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px #0004;
+      width: 320px;
+      max-width: calc(100vw - 80px);
+      font-size: 0.92em;
+      line-height: 1.35;
+      transition: opacity 0.15s ease;
+      z-index: 5;
+    }
+    .info-badge:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    .important-note {
+      background: #fff3f3;
+      border-left: 6px solid #e74c3c;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 0 0 20px 0;
+      box-shadow: 0 1px 4px #00000011;
+      color: #4a1f1f;
+    }
+    .important-note b {
+      color: #b52121;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Gerenciar Exportações de Dados</h2>
+    <div class="help-box">
+      <div class="help-title">Como usar</div>
+      <ol class="help-list">
+        <li>Marque as <strong>máquinas</strong> desejadas na lista.</li>
+        <li>Escolha o <strong>tipo de exportação</strong>: "Linha a linha" ou "Operações".</li>
+        <li>Se escolher "Operações", selecione ao menos uma <strong>operação</strong>.</li>
+        <li>Clique em <strong>SALVAR</strong> para criar o(s) grupo(s) de exportação.</li>
+        <li>Nos cartões de resultado:
+          <ul>
+            <li>Use <strong>Deletar grupo</strong> para remover o grupo completo.</li>
+            <li>Clique no botão <strong>×</strong> ao lado do nome da máquina para removê-la do grupo.</li>
+            <li>Use os <strong>chips de adicionar máquina</strong> para incluir máquinas ainda disponíveis.</li>
+          </ul>
+        </li>
+        <li>Uma máquina só pode estar em <strong>um tipo de exportação</strong> por vez. Máquinas já usadas ficam desabilitadas na lista.</li>
+      </ol>
+    </div>
+    <div class="important-note">
+      <b>Importante:</b> Uma configuração só entra em vigor no início de uma nova operação. Ou seja, máquinas que já estão com operações abertas não terão o formato de envio alterado até que a operação atual seja encerrada e uma nova seja iniciada.
+    </div>
     <form id="exportForm">
       <label>Escolha as máquinas:</label>
       <div class="maquinas-list">
@@ -192,20 +291,32 @@
         </div>
       </div>
 
-      <label>Tipo de exportação:</label>
+      <label class="label-inline">Tipo de exportação:
+        <span class="info-badge">i
+          <span class="tooltip">
+            • <strong>Linha a linha</strong>: exporta registros brutos em ordem cronológica, um por linha/evento/medição.<br>
+            • <strong>Operações</strong>: exporta dados associados a eventos operacionais (ex.: Troca de turno, Troca de operador, Virada de dia, Fechamento de OP), conforme as operações escolhidas.
+          </span>
+        </span>
+      </label>
       <select id="tipoExportacao" name="tipoExportacao">
         <option value="">Selecione...</option>
         <option value="linha">Linha a linha</option>
         <option value="operacoes">Operações</option>
       </select>
+      <div class="field-help">
+        • <strong>Linha a linha</strong> lista cada ocorrência sem agrupar por operação.<br>
+        • <strong>Operações</strong> filtra/agrupa pelos eventos selecionados.
+      </div>
 
       <div id="operacoesBox" style="display:none;">
         <label>Escolha as operações:</label>
+        <div class="field-help">Selecione os eventos operacionais que deseja incluir na exportação.</div>
         <div class="operacoes">
-          <label><input type="checkbox" name="operacoes" value="Troca de turno">Troca de turno</label>
-          <label><input type="checkbox" name="operacoes" value="Troca de operador">Troca de operador</label>
-          <label><input type="checkbox" name="operacoes" value="Virada de dia">Virada de dia</label>
-          <label><input type="checkbox" name="operacoes" value="Fechamento de OP">Fechamento de OP</label>
+          <label title="Mudança de período entre turnos"><input type="checkbox" name="operacoes" value="Troca de turno">Troca de turno</label>
+          <label title="Alteração do operador responsável"><input type="checkbox" name="operacoes" value="Troca de operador">Troca de operador</label>
+          <label title="Transição de data"><input type="checkbox" name="operacoes" value="Virada de dia">Virada de dia</label>
+          <label title="Conclusão de ordem de produção"><input type="checkbox" name="operacoes" value="Fechamento de OP">Fechamento de OP</label>
         </div>
       </div>
       <div class="alert" id="alerta"></div>
